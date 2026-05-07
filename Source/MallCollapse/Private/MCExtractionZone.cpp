@@ -3,6 +3,7 @@
 #include "MCCarryComponent.h"
 #include "MCGameState.h"
 #include "Components/BoxComponent.h"
+#include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
 
 AMCExtractionZone::AMCExtractionZone()
@@ -32,7 +33,9 @@ bool AMCExtractionZone::TryExtractActor(AActor* ActorToExtract)
 	UMCCarryComponent* CarryComponent = ActorToExtract->FindComponentByClass<UMCCarryComponent>();
 	const int32 ExtractedValue = CarryComponent ? CarryComponent->ExtractAllLoot() : 0;
 
-	if (AMCGameState* MallGameState = GetWorld() ? GetWorld()->GetGameState<AMCGameState>() : nullptr)
+	UWorld* World = GetWorld();
+	AMCGameState* MallGameState = World ? Cast<AMCGameState>(World->GetGameState()) : nullptr;
+	if (MallGameState)
 	{
 		MallGameState->AddExtractedValue(ExtractedValue);
 	}

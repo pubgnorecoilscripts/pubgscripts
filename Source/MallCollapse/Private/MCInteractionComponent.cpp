@@ -18,7 +18,7 @@ void UMCInteractionComponent::InteractWithActor(AActor* TargetActor)
 	AActor* Owner = GetOwner();
 	if (Owner && Owner->HasAuthority())
 	{
-		ServerInteractWithActor_Implementation(TargetActor);
+		ProcessInteraction(TargetActor);
 	}
 	else
 	{
@@ -28,21 +28,7 @@ void UMCInteractionComponent::InteractWithActor(AActor* TargetActor)
 
 void UMCInteractionComponent::ServerInteractWithActor_Implementation(AActor* TargetActor)
 {
-	if (!IsActorInteractable(TargetActor) || !IsWithinInteractionRange(TargetActor))
-	{
-		return;
-	}
-
-	APawn* InteractingPawn = Cast<APawn>(GetOwner());
-	if (!InteractingPawn)
-	{
-		return;
-	}
-
-	if (IMCInteractable::Execute_CanInteract(TargetActor, InteractingPawn))
-	{
-		IMCInteractable::Execute_Interact(TargetActor, InteractingPawn);
-	}
+	ProcessInteraction(TargetActor);
 }
 
 bool UMCInteractionComponent::IsActorInteractable(AActor* TargetActor) const
@@ -59,4 +45,23 @@ bool UMCInteractionComponent::IsWithinInteractionRange(AActor* TargetActor) cons
 	}
 
 	return FVector::DistSquared(Owner->GetActorLocation(), TargetActor->GetActorLocation()) <= FMath::Square(MaxInteractionDistance);
+}
+
+void UMCInteractionComponent::ProcessInteraction(AActor* TargetActor)
+{
+	if (!IsActorInteractable(TargetActor) || !IsWithinInteractionRange(TargetActor))
+	{
+		return;
+	}
+
+	APawn* InteractingPawn = Cast<APawn>(GetOwner());
+	if (!InteractingPawn)
+	{
+		return;
+	}
+
+	if (IMCInteractable::Execute_CanInteract(TargetActor, InteractingPawn))
+	{
+		IMCInteractable::Execute_Interact(TargetActor, InteractingPawn);
+	}
 }

@@ -4,6 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "MCInteractionComponent.generated.h"
 
+class AActor;
+
 UCLASS(ClassGroup = (MallCollapse), meta = (BlueprintSpawnableComponent))
 class MALLCOLLAPSE_API UMCInteractionComponent : public UActorComponent
 {
@@ -26,4 +28,5 @@ protected:
 	float MaxInteractionDistance = 250.0f;
 
 	bool IsWithinInteractionRange(AActor* TargetActor) const;
+	void ProcessInteraction(AActor* TargetActor);
 };

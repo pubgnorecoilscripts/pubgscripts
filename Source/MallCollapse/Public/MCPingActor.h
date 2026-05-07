@@ -5,6 +5,8 @@
 #include "MallCollapseTypes.h"
 #include "MCPingActor.generated.h"
 
+class AController;
+
 UCLASS(Blueprintable)
 class MALLCOLLAPSE_API AMCPingActor : public AActor
 {

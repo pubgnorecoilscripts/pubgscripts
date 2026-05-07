@@ -4,6 +4,8 @@
 #include "UObject/Interface.h"
 #include "MCInteractable.generated.h"
 
+class APawn;
+
 UINTERFACE(BlueprintType)
 class MALLCOLLAPSE_API UMCInteractable : public UInterface
 {

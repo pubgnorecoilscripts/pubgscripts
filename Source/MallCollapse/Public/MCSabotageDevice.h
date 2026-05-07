@@ -6,6 +6,8 @@
 #include "MallCollapseTypes.h"
 #include "MCSabotageDevice.generated.h"
 
+class AController;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMCSabotageActivatedSignature, EMCSabotageType, SabotageType, AController*, InstigatorController);
 
 UCLASS(Blueprintable)

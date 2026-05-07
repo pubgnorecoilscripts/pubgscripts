@@ -105,7 +105,7 @@ FText AMCLootItem::GetInteractionText_Implementation() const
 {
 	if (LootDescriptor.DisplayName.IsEmpty())
 	{
-		return FText::FromString(TEXT("Take Loot"));
+		return NSLOCTEXT("MallCollapse", "TakeLoot", "Take Loot");
 	}
 
 	return FText::Format(NSLOCTEXT("MallCollapse", "TakeLootFormat", "Take {0}"), LootDescriptor.DisplayName);
