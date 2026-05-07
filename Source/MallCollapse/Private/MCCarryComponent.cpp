@@ -1,11 +1,28 @@
 #include "MCCarryComponent.h"
 
 #include "MCLootItem.h"
+#include "MCPanicComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UMCCarryComponent::UMCCarryComponent()
 {
+	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
+}
+
+void UMCCarryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!GetOwner() || !GetOwner()->HasAuthority() || CurrentRiskPanicPerSecond <= 0.0f)
+	{
+		return;
+	}
+
+	if (UMCPanicComponent* PanicComponent = GetOwner()->FindComponentByClass<UMCPanicComponent>())
+	{
+		PanicComponent->AddPanic(CurrentRiskPanicPerSecond * DeltaTime);
+	}
 }
 
 void UMCCarryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -16,6 +33,11 @@ void UMCCarryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(UMCCarryComponent, CurrentCarryWeight);
 	DOREPLIFETIME(UMCCarryComponent, CurrentCarryValue);
 	DOREPLIFETIME(UMCCarryComponent, bDragging);
+	DOREPLIFETIME(UMCCarryComponent, CurrentVisionObstruction);
+	DOREPLIFETIME(UMCCarryComponent, CurrentCarriedNoiseRadius);
+	DOREPLIFETIME(UMCCarryComponent, bCarryingTwoHandedLoot);
+	DOREPLIFETIME(UMCCarryComponent, CurrentRiskPanicPerSecond);
+	DOREPLIFETIME(UMCCarryComponent, CurrentLootMovementPenaltyMultiplier);
 	DOREPLIFETIME(UMCCarryComponent, CarriedItems);
 }
 
@@ -117,15 +139,15 @@ float UMCCarryComponent::GetMovementSpeedMultiplier() const
 	switch (CarryState)
 	{
 	case EMCCarryState::Light:
-		return 1.0f;
+		return 1.0f * CurrentLootMovementPenaltyMultiplier;
 	case EMCCarryState::Encumbered:
-		return 0.86f;
+		return 0.86f * CurrentLootMovementPenaltyMultiplier;
 	case EMCCarryState::Overloaded:
-		return 0.64f;
+		return 0.64f * CurrentLootMovementPenaltyMultiplier;
 	case EMCCarryState::Dragging:
-		return 0.45f;
+		return 0.45f * CurrentLootMovementPenaltyMultiplier;
 	default:
-		return 1.0f;
+		return CurrentLootMovementPenaltyMultiplier;
 	}
 }
 
@@ -138,6 +160,11 @@ void UMCCarryComponent::RecalculateCarryState()
 {
 	CurrentCarryWeight = 0.0f;
 	CurrentCarryValue = 0;
+	CurrentVisionObstruction = 0.0f;
+	CurrentCarriedNoiseRadius = 0.0f;
+	bCarryingTwoHandedLoot = false;
+	CurrentRiskPanicPerSecond = 0.0f;
+	CurrentLootMovementPenaltyMultiplier = 1.0f;
 
 	for (const AMCLootItem* LootItem : CarriedItems)
 	{
@@ -149,6 +176,11 @@ void UMCCarryComponent::RecalculateCarryState()
 		const FMCLootDescriptor Descriptor = LootItem->GetLootDescriptor();
 		CurrentCarryWeight += Descriptor.Weight;
 		CurrentCarryValue += Descriptor.Value;
+		CurrentVisionObstruction = FMath::Max(CurrentVisionObstruction, Descriptor.VisionObstruction);
+		CurrentCarriedNoiseRadius = FMath::Max(CurrentCarriedNoiseRadius, Descriptor.CarriedNoiseRadius);
+		CurrentRiskPanicPerSecond += Descriptor.PanicPerSecondWhileCarried;
+		CurrentLootMovementPenaltyMultiplier = FMath::Min(CurrentLootMovementPenaltyMultiplier, FMath::Clamp(Descriptor.MovementPenaltyMultiplier, 0.1f, 1.0f));
+		bCarryingTwoHandedLoot = bCarryingTwoHandedLoot || Descriptor.bRequiresTwoHands;
 	}
 
 	const EMCCarryState PreviousState = CarryState;

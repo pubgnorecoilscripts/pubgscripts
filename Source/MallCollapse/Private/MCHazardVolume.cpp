@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "TimerManager.h"
 
 AMCHazardVolume::AMCHazardVolume()
 {
@@ -78,6 +79,24 @@ void AMCHazardVolume::SetIntensity(float NewIntensity)
 	}
 
 	Intensity = FMath::Max(0.0f, NewIntensity);
+}
+
+void AMCHazardVolume::ActivateHazardEvent(EMCHazardType NewHazardType, float NewIntensity, float DurationSeconds)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	HazardType = NewHazardType;
+	Intensity = FMath::Max(0.0f, NewIntensity);
+	bActive = true;
+	HandleHazardStateChanged();
+
+	if (DurationSeconds > 0.0f)
+	{
+		GetWorldTimerManager().SetTimer(DeactivateTimerHandle, FTimerDelegate::CreateUObject(this, &AMCHazardVolume::SetHazardActive, false), DurationSeconds, false);
+	}
 }
 
 void AMCHazardVolume::HandleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

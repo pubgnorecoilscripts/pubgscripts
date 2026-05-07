@@ -17,6 +17,7 @@ class MALLCOLLAPSE_API UMCCarryComponent : public UActorComponent
 public:
 	UMCCarryComponent();
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Carry")
@@ -49,6 +50,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Carry")
 	float GetCurrentCarryWeight() const { return CurrentCarryWeight; }
 
+	UFUNCTION(BlueprintPure, Category = "Carry|Risk")
+	float GetCurrentVisionObstruction() const { return CurrentVisionObstruction; }
+
+	UFUNCTION(BlueprintPure, Category = "Carry|Risk")
+	float GetCurrentCarriedNoiseRadius() const { return CurrentCarriedNoiseRadius; }
+
+	UFUNCTION(BlueprintPure, Category = "Carry|Risk")
+	bool IsCarryingTwoHandedLoot() const { return bCarryingTwoHandedLoot; }
+
 	UPROPERTY(BlueprintAssignable, Category = "Carry")
 	FMCCarryStateChangedSignature OnCarryStateChanged;
 
@@ -70,6 +80,21 @@ protected:
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Carry")
 	bool bDragging = false;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Carry|Risk")
+	float CurrentVisionObstruction = 0.0f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Carry|Risk")
+	float CurrentCarriedNoiseRadius = 0.0f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Carry|Risk")
+	bool bCarryingTwoHandedLoot = false;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Carry|Risk")
+	float CurrentRiskPanicPerSecond = 0.0f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Carry|Risk")
+	float CurrentLootMovementPenaltyMultiplier = 1.0f;
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Carry")
 	TArray<TObjectPtr<AMCLootItem>> CarriedItems;

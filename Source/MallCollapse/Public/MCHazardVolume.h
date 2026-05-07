@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Hazard")
 	void SetIntensity(float NewIntensity);
 
+	UFUNCTION(BlueprintCallable, Category = "Hazard")
+	void ActivateHazardEvent(EMCHazardType NewHazardType, float NewIntensity, float DurationSeconds);
+
 	UFUNCTION(BlueprintPure, Category = "Hazard")
 	bool IsHazardActive() const { return bActive; }
 
@@ -70,6 +73,7 @@ protected:
 
 private:
 	TSet<TWeakObjectPtr<AActor>> Occupants;
+	FTimerHandle DeactivateTimerHandle;
 
 	void ApplyLinkedModuleDamage(float DeltaSeconds);
 };

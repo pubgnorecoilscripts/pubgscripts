@@ -34,6 +34,16 @@ enum class EMCLootSize : uint8
 };
 
 UENUM(BlueprintType)
+enum class EMCHighValueLootPreset : uint8
+{
+	GiantTelevision UMETA(DisplayName = "Giant Television"),
+	ArcadeMachine UMETA(DisplayName = "Arcade Machine"),
+	JewelryCase UMETA(DisplayName = "Jewelry Case"),
+	LuxuryElectronics UMETA(DisplayName = "Luxury Electronics"),
+	SafeBox UMETA(DisplayName = "Safe Box")
+};
+
+UENUM(BlueprintType)
 enum class EMCPanicTier : uint8
 {
 	Calm UMETA(DisplayName = "Calm"),
@@ -75,6 +85,16 @@ enum class EMCExtractionState : uint8
 };
 
 UENUM(BlueprintType)
+enum class EMCExtractionPanicEventType : uint8
+{
+	ElevatorDelay UMETA(DisplayName = "Elevator Delay"),
+	FakeExtractionAlert UMETA(DisplayName = "Fake Extraction Alert"),
+	EmergencyReroute UMETA(DisplayName = "Emergency Reroute"),
+	CollapsingPath UMETA(DisplayName = "Collapsing Path"),
+	LastSecondCountdown UMETA(DisplayName = "Last Second Countdown")
+};
+
+UENUM(BlueprintType)
 enum class EMCPingType : uint8
 {
 	Danger UMETA(DisplayName = "Danger"),
@@ -92,7 +112,34 @@ enum class EMCSabotageType : uint8
 	FakeAnnouncement UMETA(DisplayName = "Fake Announcement"),
 	LockdownShutter UMETA(DisplayName = "Lockdown Shutter"),
 	PowerShutdown UMETA(DisplayName = "Power Shutdown"),
-	FloodValve UMETA(DisplayName = "Flood Valve")
+	FloodValve UMETA(DisplayName = "Flood Valve"),
+	SecurityShutterLockdown UMETA(DisplayName = "Security Shutter Lockdown"),
+	BreakerBlackout UMETA(DisplayName = "Breaker Blackout"),
+	EscalatorShutdown UMETA(DisplayName = "Escalator Shutdown"),
+	SprinklerFlooding UMETA(DisplayName = "Sprinkler Flooding"),
+	FalseEmergencyAlarm UMETA(DisplayName = "False Emergency Alarm")
+};
+
+UENUM(BlueprintType)
+enum class EMCAnnouncementType : uint8
+{
+	EmergencyWarning UMETA(DisplayName = "Emergency Warning"),
+	FakeEvacuation UMETA(DisplayName = "Fake Evacuation"),
+	SecurityAlert UMETA(DisplayName = "Security Alert"),
+	StorePromotion UMETA(DisplayName = "Store Promotion"),
+	MalfunctioningAI UMETA(DisplayName = "Malfunctioning AI"),
+	ExtractionUpdate UMETA(DisplayName = "Extraction Update")
+};
+
+UENUM(BlueprintType)
+enum class EMCAtmosphereCueType : uint8
+{
+	FlickerLights UMETA(DisplayName = "Flicker Lights"),
+	DistantCollapse UMETA(DisplayName = "Distant Collapse"),
+	EmergencySiren UMETA(DisplayName = "Emergency Siren"),
+	ShakeEvent UMETA(DisplayName = "Shake Event"),
+	EnvironmentalPanic UMETA(DisplayName = "Environmental Panic"),
+	Blackout UMETA(DisplayName = "Blackout")
 };
 
 USTRUCT(BlueprintType)
@@ -117,6 +164,72 @@ struct FMCLootDescriptor
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
 	bool bRequiresTwoHands = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot|Risk")
+	bool bHighValue = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot|Risk", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float MovementPenaltyMultiplier = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot|Risk", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float VisionObstruction = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot|Risk", meta = (ClampMin = "0.0"))
+	float CarriedNoiseRadius = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot|Risk", meta = (ClampMin = "0.0"))
+	float CarriedNoiseInterval = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot|Risk", meta = (ClampMin = "0.0"))
+	float PanicPerSecondWhileCarried = 0.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FMCMallAnnouncement
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Announcement")
+	int32 SequenceId = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Announcement")
+	EMCAnnouncementType AnnouncementType = EMCAnnouncementType::EmergencyWarning;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Announcement")
+	FString Message;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Announcement")
+	bool bFake = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Announcement")
+	float Intensity = 1.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Announcement")
+	float MatchTimeSeconds = 0.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FMCAtmosphereCue
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Atmosphere")
+	int32 SequenceId = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Atmosphere")
+	EMCAtmosphereCueType CueType = EMCAtmosphereCueType::EnvironmentalPanic;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Atmosphere")
+	float Intensity = 1.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Atmosphere")
+	float Radius = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Atmosphere")
+	FVector_NetQuantize Location = FVector::ZeroVector;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Atmosphere")
+	float MatchTimeSeconds = 0.0f;
 };
 
 USTRUCT(BlueprintType)

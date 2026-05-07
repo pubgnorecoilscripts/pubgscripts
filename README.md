@@ -44,7 +44,7 @@ This repo now includes a UE5 C++ project scaffold:
 - `MallCollapse.uproject`
 - `Source/MallCollapse/`
 
-Implemented first-pass runtime systems include replicated match phases, a match director, carry/loot, panic, hazards, extraction zones, player extraction results, mall module integrity, sabotage devices, pings, interaction traces, Enhanced Input hooks, and a basic player character/controller shell.
+Implemented first-pass runtime systems include replicated match phases, a match director, high-value loot risk, carry/loot, panic, dynamic hazards, extraction panic events, player extraction results, mall module integrity, social sabotage devices, mall announcements, atmosphere cues, pings, interaction traces, Enhanced Input hooks, and a basic player character/controller shell.
 
 ## First Playable Scope
 
@@ -55,6 +55,8 @@ The first playable should prove the core toy before expanding content:
 - Basic extraction.
 - Small/medium/large loot with carry penalties.
 - Fire, smoke, and local collapse hazards.
+- High-value loot that slows, obstructs, makes noise, and panics greedy players.
+- Dynamic mall announcements, fake alerts, sabotage events, and final extraction pressure.
 - Simple pings and proximity communication.
 - One primary exit and one backup exit.
 - Fast post-match results and requeue flow.

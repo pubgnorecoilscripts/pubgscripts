@@ -16,6 +16,7 @@ class MALLCOLLAPSE_API AMCLootItem : public AActor, public IMCInteractable
 public:
 	AMCLootItem();
 
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Loot")
@@ -41,6 +42,12 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Loot")
 	AActor* GetCarrier() const { return Carrier.Get(); }
+
+	UFUNCTION(BlueprintPure, Category = "Loot")
+	bool IsHighValueLoot() const { return LootDescriptor.bHighValue; }
+
+	UFUNCTION(BlueprintCallable, Category = "Loot")
+	void ApplyHighValuePreset(EMCHighValueLootPreset Preset);
 
 	virtual bool CanInteract_Implementation(APawn* InteractingPawn) const override;
 	virtual void Interact_Implementation(APawn* InteractingPawn) override;
@@ -68,5 +75,14 @@ protected:
 	UFUNCTION()
 	void OnRep_Carried();
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastCarriedNoisePulse(float NoiseRadius);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Loot")
+	void HandleCarriedNoisePulse(float NoiseRadius);
+
 	void ApplyCarryPresentation();
+
+private:
+	float NextNoisePulseTimeSeconds = 0.0f;
 };

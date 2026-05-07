@@ -18,6 +18,10 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AMCGameState, PhaseElapsedSeconds);
 	DOREPLIFETIME(AMCGameState, TotalExtractedValue);
 	DOREPLIFETIME(AMCGameState, ExtractionResults);
+	DOREPLIFETIME(AMCGameState, LastAnnouncement);
+	DOREPLIFETIME(AMCGameState, LastAtmosphereCue);
+	DOREPLIFETIME(AMCGameState, AnnouncementSequence);
+	DOREPLIFETIME(AMCGameState, AtmosphereSequence);
 }
 
 void AMCGameState::SetMatchPhase(EMCMatchPhase NewPhase)
@@ -71,7 +75,49 @@ void AMCGameState::RecordPlayerExtraction(AController* ExtractingController, int
 	ExtractionResults.Add(Result);
 }
 
+void AMCGameState::BroadcastMallAnnouncement(EMCAnnouncementType AnnouncementType, const FString& Message, bool bFake, float Intensity)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	LastAnnouncement.SequenceId = ++AnnouncementSequence;
+	LastAnnouncement.AnnouncementType = AnnouncementType;
+	LastAnnouncement.Message = Message;
+	LastAnnouncement.bFake = bFake;
+	LastAnnouncement.Intensity = FMath::Max(0.0f, Intensity);
+	LastAnnouncement.MatchTimeSeconds = MatchElapsedSeconds;
+	OnMallAnnouncement.Broadcast(LastAnnouncement);
+}
+
+void AMCGameState::BroadcastAtmosphereCue(EMCAtmosphereCueType CueType, float Intensity, FVector Location, float Radius)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	LastAtmosphereCue.SequenceId = ++AtmosphereSequence;
+	LastAtmosphereCue.CueType = CueType;
+	LastAtmosphereCue.Intensity = FMath::Max(0.0f, Intensity);
+	LastAtmosphereCue.Location = Location;
+	LastAtmosphereCue.Radius = FMath::Max(0.0f, Radius);
+	LastAtmosphereCue.MatchTimeSeconds = MatchElapsedSeconds;
+	OnAtmosphereCue.Broadcast(LastAtmosphereCue);
+}
+
 void AMCGameState::OnRep_MatchPhase()
 {
 	OnMatchPhaseChanged.Broadcast(MatchPhase);
+}
+
+void AMCGameState::OnRep_LastAnnouncement()
+{
+	OnMallAnnouncement.Broadcast(LastAnnouncement);
+}
+
+void AMCGameState::OnRep_LastAtmosphereCue()
+{
+	OnAtmosphereCue.Broadcast(LastAtmosphereCue);
 }

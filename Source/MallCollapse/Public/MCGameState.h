@@ -6,6 +6,8 @@
 #include "MCGameState.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCMatchPhaseChangedSignature, EMCMatchPhase, NewPhase);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCMallAnnouncementSignature, const FMCMallAnnouncement&, Announcement);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCAtmosphereCueSignature, const FMCAtmosphereCue&, AtmosphereCue);
 
 UCLASS()
 class MALLCOLLAPSE_API AMCGameState : public AGameStateBase
@@ -29,6 +31,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Extraction")
 	void RecordPlayerExtraction(AController* ExtractingController, int32 Value);
 
+	UFUNCTION(BlueprintCallable, Category = "Announcement")
+	void BroadcastMallAnnouncement(EMCAnnouncementType AnnouncementType, const FString& Message, bool bFake, float Intensity);
+
+	UFUNCTION(BlueprintCallable, Category = "Atmosphere")
+	void BroadcastAtmosphereCue(EMCAtmosphereCueType CueType, float Intensity, FVector Location, float Radius);
+
 	UFUNCTION(BlueprintPure, Category = "Match")
 	EMCMatchPhase GetMatchPhase() const { return MatchPhase; }
 
@@ -44,8 +52,20 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Extraction")
 	const TArray<FMCPlayerExtractionResult>& GetExtractionResults() const { return ExtractionResults; }
 
+	UFUNCTION(BlueprintPure, Category = "Announcement")
+	FMCMallAnnouncement GetLastAnnouncement() const { return LastAnnouncement; }
+
+	UFUNCTION(BlueprintPure, Category = "Atmosphere")
+	FMCAtmosphereCue GetLastAtmosphereCue() const { return LastAtmosphereCue; }
+
 	UPROPERTY(BlueprintAssignable, Category = "Match")
 	FMCMatchPhaseChangedSignature OnMatchPhaseChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Announcement")
+	FMCMallAnnouncementSignature OnMallAnnouncement;
+
+	UPROPERTY(BlueprintAssignable, Category = "Atmosphere")
+	FMCAtmosphereCueSignature OnAtmosphereCue;
 
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_MatchPhase, BlueprintReadOnly, Category = "Match")
@@ -63,6 +83,24 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Extraction")
 	TArray<FMCPlayerExtractionResult> ExtractionResults;
 
+	UPROPERTY(ReplicatedUsing = OnRep_LastAnnouncement, BlueprintReadOnly, Category = "Announcement")
+	FMCMallAnnouncement LastAnnouncement;
+
+	UPROPERTY(ReplicatedUsing = OnRep_LastAtmosphereCue, BlueprintReadOnly, Category = "Atmosphere")
+	FMCAtmosphereCue LastAtmosphereCue;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Announcement")
+	int32 AnnouncementSequence = 0;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Atmosphere")
+	int32 AtmosphereSequence = 0;
+
 	UFUNCTION()
 	void OnRep_MatchPhase();
+
+	UFUNCTION()
+	void OnRep_LastAnnouncement();
+
+	UFUNCTION()
+	void OnRep_LastAtmosphereCue();
 };

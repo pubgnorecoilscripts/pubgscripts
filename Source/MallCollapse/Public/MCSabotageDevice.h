@@ -7,6 +7,10 @@
 #include "MCSabotageDevice.generated.h"
 
 class AController;
+class AMCExtractionZone;
+class AMCGameState;
+class AMCHazardVolume;
+class AMCMallModuleStateActor;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMCSabotageActivatedSignature, EMCSabotageType, SabotageType, AController*, InstigatorController);
 
@@ -58,6 +62,18 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Sabotage")
 	TObjectPtr<AController> LastInstigatorController;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sabotage|Effects")
+	TArray<TObjectPtr<AMCExtractionZone>> LinkedExtractionZones;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sabotage|Effects")
+	TArray<TObjectPtr<AMCHazardVolume>> LinkedHazardVolumes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sabotage|Effects")
+	TArray<TObjectPtr<AMCMallModuleStateActor>> LinkedMallModules;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sabotage|Effects", meta = (ClampMin = "0.0"))
+	float ModuleStressAmount = 18.0f;
+
 	UFUNCTION()
 	void OnRep_SabotageState();
 
@@ -68,4 +84,11 @@ protected:
 	void HandleSabotageReset();
 
 	void ScheduleResetIfNeeded();
+	void ApplySabotageEffects(AController* InstigatorController);
+	void ApplyExtractionLockdown();
+	void ApplyBreakerBlackout();
+	void ApplyEscalatorShutdown();
+	void ApplySprinklerFlooding();
+	void ApplyFalseEmergencyAlarm();
+	AMCGameState* GetMallGameState() const;
 };
