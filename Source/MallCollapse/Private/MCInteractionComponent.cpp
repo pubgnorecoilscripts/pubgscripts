@@ -35,7 +35,7 @@ void UMCInteractionComponent::TryInteractFromView()
 	AActor* Owner = GetOwner();
 	if (Owner && Owner->HasAuthority())
 	{
-		ServerInteractFromView_Implementation();
+		ProcessInteractionFromView();
 	}
 	else
 	{
@@ -50,11 +50,7 @@ void UMCInteractionComponent::ServerInteractWithActor_Implementation(AActor* Tar
 
 void UMCInteractionComponent::ServerInteractFromView_Implementation()
 {
-	FHitResult HitResult;
-	if (FindInteractableFromView(HitResult))
-	{
-		ProcessInteraction(HitResult.GetActor());
-	}
+	ProcessInteractionFromView();
 }
 
 bool UMCInteractionComponent::FindInteractableFromView(FHitResult& OutHitResult) const
@@ -110,5 +106,14 @@ void UMCInteractionComponent::ProcessInteraction(AActor* TargetActor)
 	if (IMCInteractable::Execute_CanInteract(TargetActor, InteractingPawn))
 	{
 		IMCInteractable::Execute_Interact(TargetActor, InteractingPawn);
+	}
+}
+
+void UMCInteractionComponent::ProcessInteractionFromView()
+{
+	FHitResult HitResult;
+	if (FindInteractableFromView(HitResult))
+	{
+		ProcessInteraction(HitResult.GetActor());
 	}
 }

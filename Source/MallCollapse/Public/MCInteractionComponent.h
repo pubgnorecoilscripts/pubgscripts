@@ -44,4 +44,5 @@ protected:
 
 	bool IsWithinInteractionRange(AActor* TargetActor) const;
 	void ProcessInteraction(AActor* TargetActor);
+	void ProcessInteractionFromView();
 };

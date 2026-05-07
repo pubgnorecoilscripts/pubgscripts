@@ -13,7 +13,7 @@ void AMCPlayerController::CreatePingFromView(EMCPingType PingType)
 {
 	if (HasAuthority())
 	{
-		ServerCreatePingFromView_Implementation(PingType);
+		ProcessCreatePingFromView(PingType);
 	}
 	else
 	{
@@ -23,30 +23,12 @@ void AMCPlayerController::CreatePingFromView(EMCPingType PingType)
 
 void AMCPlayerController::ServerCreatePing_Implementation(EMCPingType PingType, FVector_NetQuantize Location, AActor* TargetActor)
 {
-	if (!PingActorClass || !GetWorld())
-	{
-		return;
-	}
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	SpawnParams.Instigator = GetPawn();
-
-	AMCPingActor* PingActor = GetWorld()->SpawnActor<AMCPingActor>(PingActorClass, FVector(Location), FRotator::ZeroRotator, SpawnParams);
-	if (PingActor)
-	{
-		PingActor->InitializePing(PingType, this, TargetActor, PingLifetimeSeconds);
-	}
+	CreatePingAtLocation(PingType, FVector(Location), TargetActor);
 }
 
 void AMCPlayerController::ServerCreatePingFromView_Implementation(EMCPingType PingType)
 {
-	FVector PingLocation;
-	AActor* TargetActor = nullptr;
-	if (TracePingFromView(PingLocation, TargetActor))
-	{
-		ServerCreatePing_Implementation(PingType, PingLocation, TargetActor);
-	}
+	ProcessCreatePingFromView(PingType);
 }
 
 bool AMCPlayerController::TracePingFromView(FVector& OutLocation, AActor*& OutTargetActor) const
@@ -71,4 +53,32 @@ bool AMCPlayerController::TracePingFromView(FVector& OutLocation, AActor*& OutTa
 	OutLocation = bHit ? HitResult.ImpactPoint : TraceEnd;
 	OutTargetActor = bHit ? HitResult.GetActor() : nullptr;
 	return true;
+}
+
+void AMCPlayerController::CreatePingAtLocation(EMCPingType PingType, const FVector& Location, AActor* TargetActor)
+{
+	if (!PingActorClass || !GetWorld())
+	{
+		return;
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = GetPawn();
+
+	AMCPingActor* PingActor = GetWorld()->SpawnActor<AMCPingActor>(PingActorClass, FVector(Location), FRotator::ZeroRotator, SpawnParams);
+	if (PingActor)
+	{
+		PingActor->InitializePing(PingType, this, TargetActor, PingLifetimeSeconds);
+	}
+}
+
+void AMCPlayerController::ProcessCreatePingFromView(EMCPingType PingType)
+{
+	FVector PingLocation;
+	AActor* TargetActor = nullptr;
+	if (TracePingFromView(PingLocation, TargetActor))
+	{
+		CreatePingAtLocation(PingType, PingLocation, TargetActor);
+	}
 }

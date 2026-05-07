@@ -38,4 +38,6 @@ protected:
 	TEnumAsByte<ECollisionChannel> PingTraceChannel = ECC_Visibility;
 
 	bool TracePingFromView(FVector& OutLocation, AActor*& OutTargetActor) const;
+	void CreatePingAtLocation(EMCPingType PingType, const FVector& Location, AActor* TargetActor);
+	void ProcessCreatePingFromView(EMCPingType PingType);
 };
