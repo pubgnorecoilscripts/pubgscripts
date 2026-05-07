@@ -5,6 +5,7 @@
 #include "MallCollapseTypes.h"
 #include "MCHazardVolume.generated.h"
 
+class AMCMallModuleStateActor;
 class UBoxComponent;
 
 UCLASS(Blueprintable)
@@ -49,6 +50,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hazard")
 	bool bDamagePlayers = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hazard|Mall Integrity")
+	TArray<TObjectPtr<AMCMallModuleStateActor>> LinkedMallModules;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hazard|Mall Integrity", meta = (ClampMin = "0.0"))
+	float ModuleDamagePerSecond = 1.0f;
+
 	UFUNCTION()
 	void HandleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -63,4 +70,6 @@ protected:
 
 private:
 	TSet<TWeakObjectPtr<AActor>> Occupants;
+
+	void ApplyLinkedModuleDamage(float DeltaSeconds);
 };

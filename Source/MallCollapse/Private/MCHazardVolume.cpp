@@ -1,5 +1,6 @@
 #include "MCHazardVolume.h"
 
+#include "MCMallModuleStateActor.h"
 #include "MCPanicComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -25,6 +26,8 @@ void AMCHazardVolume::Tick(float DeltaSeconds)
 	{
 		return;
 	}
+
+	ApplyLinkedModuleDamage(DeltaSeconds);
 
 	for (auto It = Occupants.CreateIterator(); It; ++It)
 	{
@@ -96,4 +99,43 @@ void AMCHazardVolume::HandleEndOverlap(UPrimitiveComponent* OverlappedComponent,
 void AMCHazardVolume::OnRep_HazardState()
 {
 	HandleHazardStateChanged();
+}
+
+void AMCHazardVolume::ApplyLinkedModuleDamage(float DeltaSeconds)
+{
+	const float DamageAmount = ModuleDamagePerSecond * Intensity * DeltaSeconds;
+	if (DamageAmount <= 0.0f)
+	{
+		return;
+	}
+
+	for (AMCMallModuleStateActor* Module : LinkedMallModules)
+	{
+		if (!Module)
+		{
+			continue;
+		}
+
+		switch (HazardType)
+		{
+		case EMCHazardType::Fire:
+		case EMCHazardType::Smoke:
+			Module->ApplyFireDamage(DamageAmount);
+			break;
+		case EMCHazardType::Flood:
+			Module->ApplyWaterDamage(DamageAmount);
+			break;
+		case EMCHazardType::Electrical:
+			Module->ApplyElectricalInstability(DamageAmount);
+			break;
+		case EMCHazardType::StructuralCollapse:
+			Module->ApplyOverloadStress(DamageAmount);
+			break;
+		case EMCHazardType::SecurityLockdown:
+			Module->ApplyElectricalInstability(DamageAmount * 0.5f);
+			break;
+		default:
+			break;
+		}
+	}
 }

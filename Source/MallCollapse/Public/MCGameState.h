@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Extraction")
 	void AddExtractedValue(int32 Value);
 
+	UFUNCTION(BlueprintCallable, Category = "Extraction")
+	void RecordPlayerExtraction(AController* ExtractingController, int32 Value);
+
 	UFUNCTION(BlueprintPure, Category = "Match")
 	EMCMatchPhase GetMatchPhase() const { return MatchPhase; }
 
@@ -37,6 +40,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Extraction")
 	int32 GetTotalExtractedValue() const { return TotalExtractedValue; }
+
+	UFUNCTION(BlueprintPure, Category = "Extraction")
+	const TArray<FMCPlayerExtractionResult>& GetExtractionResults() const { return ExtractionResults; }
 
 	UPROPERTY(BlueprintAssignable, Category = "Match")
 	FMCMatchPhaseChangedSignature OnMatchPhaseChanged;
@@ -53,6 +59,9 @@ protected:
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Extraction")
 	int32 TotalExtractedValue = 0;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Extraction")
+	TArray<FMCPlayerExtractionResult> ExtractionResults;
 
 	UFUNCTION()
 	void OnRep_MatchPhase();

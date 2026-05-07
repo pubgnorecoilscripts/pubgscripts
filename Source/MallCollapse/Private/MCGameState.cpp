@@ -1,5 +1,7 @@
 #include "MCGameState.h"
 
+#include "GameFramework/Controller.h"
+#include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 
 AMCGameState::AMCGameState()
@@ -15,6 +17,7 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AMCGameState, MatchElapsedSeconds);
 	DOREPLIFETIME(AMCGameState, PhaseElapsedSeconds);
 	DOREPLIFETIME(AMCGameState, TotalExtractedValue);
+	DOREPLIFETIME(AMCGameState, ExtractionResults);
 }
 
 void AMCGameState::SetMatchPhase(EMCMatchPhase NewPhase)
@@ -48,6 +51,24 @@ void AMCGameState::AddExtractedValue(int32 Value)
 	}
 
 	TotalExtractedValue += Value;
+}
+
+void AMCGameState::RecordPlayerExtraction(AController* ExtractingController, int32 Value)
+{
+	if (!HasAuthority() || !ExtractingController)
+	{
+		return;
+	}
+
+	AddExtractedValue(Value);
+
+	FMCPlayerExtractionResult Result;
+	Result.PlayerState = ExtractingController->PlayerState;
+	Result.PlayerName = ExtractingController->PlayerState ? ExtractingController->PlayerState->GetPlayerName() : FString(TEXT("Unknown"));
+	Result.ExtractedValue = FMath::Max(0, Value);
+	Result.MatchTimeSeconds = MatchElapsedSeconds;
+	Result.MatchPhase = MatchPhase;
+	ExtractionResults.Add(Result);
 }
 
 void AMCGameState::OnRep_MatchPhase()

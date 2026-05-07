@@ -4,9 +4,12 @@
 #include "GameFramework/Character.h"
 #include "MCCharacter.generated.h"
 
+class UInputAction;
+class UInputMappingContext;
 class UMCCarryComponent;
 class UMCInteractionComponent;
 class UMCPanicComponent;
+struct FInputActionValue;
 
 UCLASS()
 class MALLCOLLAPSE_API AMCCharacter : public ACharacter
@@ -18,6 +21,7 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintPure, Category = "Mall Collapse")
 	UMCCarryComponent* GetCarryComponent() const { return CarryComponent; }
@@ -41,5 +45,31 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
 	float BaseWalkSpeed = 600.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputMappingContext> DefaultInputMappingContext;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	int32 DefaultInputMappingPriority = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> InteractAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> DropLootAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> PingAction;
+
 	void ApplyMallMovementModifiers();
+	void HandleMoveInput(const FInputActionValue& Value);
+	void HandleLookInput(const FInputActionValue& Value);
+	void HandleInteractInput();
+	void HandleDropLootInput();
+	void HandlePingInput();
 };

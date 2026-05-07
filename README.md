@@ -44,7 +44,7 @@ This repo now includes a UE5 C++ project scaffold:
 - `MallCollapse.uproject`
 - `Source/MallCollapse/`
 
-Implemented first-pass runtime systems include replicated match phases, carry/loot, panic, hazards, extraction zones, mall module integrity, sabotage devices, pings, interaction, and a basic player character/controller shell.
+Implemented first-pass runtime systems include replicated match phases, a match director, carry/loot, panic, hazards, extraction zones, player extraction results, mall module integrity, sabotage devices, pings, interaction traces, Enhanced Input hooks, and a basic player character/controller shell.
 
 ## First Playable Scope
 

@@ -4,6 +4,7 @@
 #include "MCGameState.h"
 #include "Components/BoxComponent.h"
 #include "Engine/World.h"
+#include "GameFramework/Pawn.h"
 #include "Net/UnrealNetwork.h"
 
 AMCExtractionZone::AMCExtractionZone()
@@ -37,7 +38,15 @@ bool AMCExtractionZone::TryExtractActor(AActor* ActorToExtract)
 	AMCGameState* MallGameState = World ? Cast<AMCGameState>(World->GetGameState()) : nullptr;
 	if (MallGameState)
 	{
-		MallGameState->AddExtractedValue(ExtractedValue);
+		APawn* ExtractedPawn = Cast<APawn>(ActorToExtract);
+		if (ExtractedPawn && ExtractedPawn->GetController())
+		{
+			MallGameState->RecordPlayerExtraction(ExtractedPawn->GetController(), ExtractedValue);
+		}
+		else
+		{
+			MallGameState->AddExtractedValue(ExtractedValue);
+		}
 	}
 
 	if (bHideExtractedActors)

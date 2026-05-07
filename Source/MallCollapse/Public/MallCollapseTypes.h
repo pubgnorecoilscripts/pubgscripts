@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "MallCollapseTypes.generated.h"
 
+class APlayerState;
+
 UENUM(BlueprintType)
 enum class EMCMatchPhase : uint8
 {
@@ -115,4 +117,25 @@ struct FMCLootDescriptor
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
 	bool bRequiresTwoHands = false;
+};
+
+USTRUCT(BlueprintType)
+struct FMCPlayerExtractionResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Extraction")
+	TObjectPtr<APlayerState> PlayerState = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Extraction")
+	FString PlayerName;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Extraction")
+	int32 ExtractedValue = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Extraction")
+	float MatchTimeSeconds = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Extraction")
+	EMCMatchPhase MatchPhase = EMCMatchPhase::Entry;
 };
