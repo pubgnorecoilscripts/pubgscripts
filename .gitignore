@@ -1,0 +1,27 @@
+# Unreal Engine generated files
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+.vs/
+.vscode/
+
+# IDE/editor noise
+*.sln
+*.suo
+*.user
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+
+# Build outputs and logs
+*.log
+*.tmp
+*.pdb
+*.obj
+
+# OS noise
+.DS_Store
+Thumbs.db

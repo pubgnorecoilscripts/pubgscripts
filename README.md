@@ -35,6 +35,16 @@
 
 - [Core Game Design](docs/mall-collapse-core-design.md) - full design pillars, match flow, player systems, mall systems, sabotage, UX, retention, and virality.
 - [Production and Technical Plan](docs/mall-collapse-production-plan.md) - MVP scope, Early Access path, technical architecture, content priorities, cut lines, and prototype backlog.
+- [Prototype Code Status](docs/prototype-code-status.md) - current UE5 C++ scaffold, implemented systems, limits, and next coding targets.
+
+## Code Status
+
+This repo now includes a UE5 C++ project scaffold:
+
+- `MallCollapse.uproject`
+- `Source/MallCollapse/`
+
+Implemented first-pass runtime systems include replicated match phases, carry/loot, panic, hazards, extraction zones, mall module integrity, sabotage devices, pings, interaction, and a basic player character/controller shell.
 
 ## First Playable Scope
 
