@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/NetSerialization.h"
 #include "MallCollapseTypes.generated.h"
 
 class APlayerState;

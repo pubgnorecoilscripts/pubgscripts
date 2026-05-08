@@ -3,8 +3,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MallCollapseTypes.h"
+#include "TimerManager.h"
 #include "MCExtractionZone.generated.h"
 
+class UStaticMeshComponent;
 class UBoxComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMCExtractionSignature, AActor*, ExtractedActor, int32, ExtractedValue);
@@ -37,6 +39,9 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UBoxComponent> ExtractionBounds;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> DebugMeshComponent;
 
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_ExtractionState, BlueprintReadOnly, Category = "Extraction")
 	EMCExtractionState ExtractionState = EMCExtractionState::Available;

@@ -6,8 +6,10 @@
 #include "MCPanicComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
 
 AMCCharacter::AMCCharacter()
@@ -15,9 +17,26 @@ AMCCharacter::AMCCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 420.0f;
+	CameraBoom->bUsePawnControlRotation = true;
+
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false;
+
+	CarryAttachPoint = CreateDefaultSubobject<USceneComponent>(TEXT("CarryAttachPoint"));
+	CarryAttachPoint->SetupAttachment(RootComponent);
+	CarryAttachPoint->SetRelativeLocation(FVector(115.0f, 0.0f, 45.0f));
+
 	CarryComponent = CreateDefaultSubobject<UMCCarryComponent>(TEXT("CarryComponent"));
 	PanicComponent = CreateDefaultSubobject<UMCPanicComponent>(TEXT("PanicComponent"));
 	InteractionComponent = CreateDefaultSubobject<UMCInteractionComponent>(TEXT("InteractionComponent"));
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 }
 
 void AMCCharacter::BeginPlay()
@@ -56,35 +75,41 @@ void AMCCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	if (!EnhancedInputComponent)
-	{
-		return;
-	}
-
-	if (MoveAction)
+	if (EnhancedInputComponent && MoveAction)
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMCCharacter::HandleMoveInput);
 	}
 
-	if (LookAction)
+	if (EnhancedInputComponent && LookAction)
 	{
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMCCharacter::HandleLookInput);
 	}
 
-	if (InteractAction)
+	if (EnhancedInputComponent && InteractAction)
 	{
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AMCCharacter::HandleInteractInput);
 	}
 
-	if (DropLootAction)
+	if (EnhancedInputComponent && DropLootAction)
 	{
 		EnhancedInputComponent->BindAction(DropLootAction, ETriggerEvent::Started, this, &AMCCharacter::HandleDropLootInput);
 	}
 
-	if (PingAction)
+	if (EnhancedInputComponent && PingAction)
 	{
 		EnhancedInputComponent->BindAction(PingAction, ETriggerEvent::Started, this, &AMCCharacter::HandlePingInput);
 	}
+
+	// Legacy bindings make the source-only prototype playable before input assets exist.
+	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMCCharacter::HandleMoveForward);
+	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMCCharacter::HandleMoveRight);
+	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AMCCharacter::HandleTurn);
+	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AMCCharacter::HandleLookUp);
+	PlayerInputComponent->BindAction(TEXT("Interact"), IE_Pressed, this, &AMCCharacter::HandleInteractInput);
+	PlayerInputComponent->BindAction(TEXT("DropLoot"), IE_Pressed, this, &AMCCharacter::HandleDropLootInput);
+	PlayerInputComponent->BindAction(TEXT("Ping"), IE_Pressed, this, &AMCCharacter::HandlePingInput);
+	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &ACharacter::StopJumping);
 }
 
 void AMCCharacter::ApplyMallMovementModifiers()
@@ -102,7 +127,11 @@ void AMCCharacter::ApplyMallMovementModifiers()
 
 void AMCCharacter::HandleMoveInput(const FInputActionValue& Value)
 {
-	const FVector2D MovementVector = Value.Get<FVector2D>();
+	ApplyMovementVector(Value.Get<FVector2D>());
+}
+
+void AMCCharacter::ApplyMovementVector(const FVector2D& MovementVector)
+{
 	if (!Controller || MovementVector.IsNearlyZero())
 	{
 		return;
@@ -160,4 +189,34 @@ void AMCCharacter::HandlePingInput()
 	{
 		MallPlayerController->CreatePingFromView(EMCPingType::Danger);
 	}
+}
+
+void AMCCharacter::HandleMoveForward(float Value)
+{
+	if (FMath::IsNearlyZero(Value))
+	{
+		return;
+	}
+
+	ApplyMovementVector(FVector2D(0.0f, Value));
+}
+
+void AMCCharacter::HandleMoveRight(float Value)
+{
+	if (FMath::IsNearlyZero(Value))
+	{
+		return;
+	}
+
+	ApplyMovementVector(FVector2D(Value, 0.0f));
+}
+
+void AMCCharacter::HandleTurn(float Value)
+{
+	AddControllerYawInput(Value);
+}
+
+void AMCCharacter::HandleLookUp(float Value)
+{
+	AddControllerPitchInput(Value);
 }

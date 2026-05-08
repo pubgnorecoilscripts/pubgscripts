@@ -4,14 +4,32 @@
 #include "MCGameState.h"
 #include "MCHazardVolume.h"
 #include "MCMallModuleStateActor.h"
+#include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
 #include "Net/UnrealNetwork.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
 AMCSabotageDevice::AMCSabotageDevice()
 {
 	bReplicates = true;
+
+	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
+	SetRootComponent(SceneRoot);
+
+	DebugMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DebugMesh"));
+	DebugMeshComponent->SetupAttachment(SceneRoot);
+	DebugMeshComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+	DebugMeshComponent->SetRelativeScale3D(FVector(0.45f, 0.2f, 0.8f));
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	if (CubeMesh.Succeeded())
+	{
+		DebugMeshComponent->SetStaticMesh(CubeMesh.Object);
+	}
 }
 
 void AMCSabotageDevice::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -68,6 +86,28 @@ void AMCSabotageDevice::ResetSabotage()
 
 	bActivated = false;
 	HandleSabotageReset();
+}
+
+void AMCSabotageDevice::ConfigurePrototypeSabotage(EMCSabotageType NewSabotageType, AMCExtractionZone* ExtractionZone, AMCHazardVolume* HazardVolume, AMCMallModuleStateActor* MallModule)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	SabotageType = NewSabotageType;
+	if (ExtractionZone)
+	{
+		LinkedExtractionZones.AddUnique(ExtractionZone);
+	}
+	if (HazardVolume)
+	{
+		LinkedHazardVolumes.AddUnique(HazardVolume);
+	}
+	if (MallModule)
+	{
+		LinkedMallModules.AddUnique(MallModule);
+	}
 }
 
 bool AMCSabotageDevice::CanInteract_Implementation(APawn* InteractingPawn) const

@@ -3,10 +3,13 @@
 #include "MCCarryComponent.h"
 #include "MCGameState.h"
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
 #include "Net/UnrealNetwork.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
 AMCExtractionZone::AMCExtractionZone()
 {
@@ -17,6 +20,17 @@ AMCExtractionZone::AMCExtractionZone()
 	ExtractionBounds->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	ExtractionBounds->OnComponentBeginOverlap.AddDynamic(this, &AMCExtractionZone::HandleBeginOverlap);
 	ExtractionBounds->OnComponentEndOverlap.AddDynamic(this, &AMCExtractionZone::HandleEndOverlap);
+
+	DebugMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DebugMesh"));
+	DebugMeshComponent->SetupAttachment(ExtractionBounds);
+	DebugMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DebugMeshComponent->SetRelativeScale3D(FVector(1.4f, 1.4f, 2.0f));
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	if (CubeMesh.Succeeded())
+	{
+		DebugMeshComponent->SetStaticMesh(CubeMesh.Object);
+	}
 }
 
 void AMCExtractionZone::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

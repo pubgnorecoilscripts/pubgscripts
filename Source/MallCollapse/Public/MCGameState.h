@@ -6,8 +6,8 @@
 #include "MCGameState.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCMatchPhaseChangedSignature, EMCMatchPhase, NewPhase);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCMallAnnouncementSignature, const FMCMallAnnouncement&, Announcement);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCAtmosphereCueSignature, const FMCAtmosphereCue&, AtmosphereCue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCMallAnnouncementSignature, FMCMallAnnouncement, Announcement);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCAtmosphereCueSignature, FMCAtmosphereCue, AtmosphereCue);
 
 UCLASS()
 class MALLCOLLAPSE_API AMCGameState : public AGameStateBase
@@ -50,7 +50,7 @@ public:
 	int32 GetTotalExtractedValue() const { return TotalExtractedValue; }
 
 	UFUNCTION(BlueprintPure, Category = "Extraction")
-	const TArray<FMCPlayerExtractionResult>& GetExtractionResults() const { return ExtractionResults; }
+	TArray<FMCPlayerExtractionResult> GetExtractionResults() const { return ExtractionResults; }
 
 	UFUNCTION(BlueprintPure, Category = "Announcement")
 	FMCMallAnnouncement GetLastAnnouncement() const { return LastAnnouncement; }

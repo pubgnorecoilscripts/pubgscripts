@@ -3,9 +3,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MallCollapseTypes.h"
+#include "TimerManager.h"
 #include "MCHazardVolume.generated.h"
 
 class AMCMallModuleStateActor;
+class UStaticMeshComponent;
 class UBoxComponent;
 
 UCLASS(Blueprintable)
@@ -34,6 +36,9 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UBoxComponent> HazardBounds;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> DebugMeshComponent;
 
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_HazardState, BlueprintReadOnly, Category = "Hazard")
 	EMCHazardType HazardType = EMCHazardType::Fire;

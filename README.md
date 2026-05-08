@@ -43,8 +43,12 @@ This repo now includes a UE5 C++ project scaffold:
 
 - `MallCollapse.uproject`
 - `Source/MallCollapse/`
+- `Config/DefaultEngine.ini`
+- `Config/DefaultInput.ini`
 
 Implemented first-pass runtime systems include replicated match phases, a match director, high-value loot risk, carry/loot, panic, dynamic hazards, extraction panic events, player extraction results, mall module integrity, social sabotage devices, mall announcements, atmosphere cues, pings, interaction traces, Enhanced Input hooks, and a basic player character/controller shell.
+
+For first-playable execution, the C++ GameMode now spawns an ugly runtime greybox arena with placeholder loot, one hazard, two extraction zones, one sabotage switch, camera support, keyboard/mouse input fallback, visible carried loot, and a debug HUD.
 
 ## First Playable Scope
 

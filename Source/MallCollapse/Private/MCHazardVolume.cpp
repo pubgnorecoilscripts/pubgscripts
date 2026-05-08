@@ -3,9 +3,12 @@
 #include "MCMallModuleStateActor.h"
 #include "MCPanicComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
 AMCHazardVolume::AMCHazardVolume()
 {
@@ -17,6 +20,17 @@ AMCHazardVolume::AMCHazardVolume()
 	HazardBounds->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	HazardBounds->OnComponentBeginOverlap.AddDynamic(this, &AMCHazardVolume::HandleBeginOverlap);
 	HazardBounds->OnComponentEndOverlap.AddDynamic(this, &AMCHazardVolume::HandleEndOverlap);
+
+	DebugMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DebugMesh"));
+	DebugMeshComponent->SetupAttachment(HazardBounds);
+	DebugMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DebugMeshComponent->SetRelativeScale3D(FVector(2.0f, 2.0f, 0.25f));
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	if (CubeMesh.Succeeded())
+	{
+		DebugMeshComponent->SetStaticMesh(CubeMesh.Object);
+	}
 }
 
 void AMCHazardVolume::Tick(float DeltaSeconds)

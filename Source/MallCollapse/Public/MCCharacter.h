@@ -6,9 +6,12 @@
 
 class UInputAction;
 class UInputMappingContext;
+class USpringArmComponent;
+class UCameraComponent;
 class UMCCarryComponent;
 class UMCInteractionComponent;
 class UMCPanicComponent;
+class USceneComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -32,7 +35,19 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mall Collapse")
 	UMCInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
 
+	UFUNCTION(BlueprintPure, Category = "Mall Collapse")
+	USceneComponent* GetCarryAttachPoint() const { return CarryAttachPoint; }
+
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<USpringArmComponent> CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UCameraComponent> FollowCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<USceneComponent> CarryAttachPoint;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UMCCarryComponent> CarryComponent;
 
@@ -67,9 +82,14 @@ protected:
 	TObjectPtr<UInputAction> PingAction;
 
 	void ApplyMallMovementModifiers();
+	void ApplyMovementVector(const FVector2D& MovementVector);
 	void HandleMoveInput(const FInputActionValue& Value);
 	void HandleLookInput(const FInputActionValue& Value);
 	void HandleInteractInput();
 	void HandleDropLootInput();
 	void HandlePingInput();
+	void HandleMoveForward(float Value);
+	void HandleMoveRight(float Value);
+	void HandleTurn(float Value);
+	void HandleLookUp(float Value);
 };

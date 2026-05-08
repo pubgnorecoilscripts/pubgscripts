@@ -11,6 +11,7 @@ class AMCExtractionZone;
 class AMCGameState;
 class AMCHazardVolume;
 class AMCMallModuleStateActor;
+class UStaticMeshComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMCSabotageActivatedSignature, EMCSabotageType, SabotageType, AController*, InstigatorController);
 
@@ -33,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Sabotage")
 	void ResetSabotage();
 
+	UFUNCTION(BlueprintCallable, Category = "Sabotage")
+	void ConfigurePrototypeSabotage(EMCSabotageType NewSabotageType, AMCExtractionZone* ExtractionZone, AMCHazardVolume* HazardVolume, AMCMallModuleStateActor* MallModule);
+
 	UPROPERTY(BlueprintAssignable, Category = "Sabotage")
 	FMCSabotageActivatedSignature OnSabotageActivated;
 
@@ -41,6 +45,12 @@ public:
 	virtual FText GetInteractionText_Implementation() const override;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<USceneComponent> SceneRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> DebugMeshComponent;
+
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_SabotageState, BlueprintReadOnly, Category = "Sabotage")
 	EMCSabotageType SabotageType = EMCSabotageType::LockdownShutter;
 

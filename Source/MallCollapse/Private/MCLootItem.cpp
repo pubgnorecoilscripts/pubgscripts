@@ -1,9 +1,12 @@
 #include "MCLootItem.h"
 
+#include "MCCharacter.h"
 #include "MCCarryComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/Pawn.h"
 #include "Net/UnrealNetwork.h"
+#include "UObject/ConstructorHelpers.h"
 
 AMCLootItem::AMCLootItem()
 {
@@ -18,6 +21,13 @@ AMCLootItem::AMCLootItem()
 	MeshComponent->SetupAttachment(SceneRoot);
 	MeshComponent->SetCollisionProfileName(TEXT("PhysicsActor"));
 	MeshComponent->SetIsReplicated(true);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	if (CubeMesh.Succeeded())
+	{
+		MeshComponent->SetStaticMesh(CubeMesh.Object);
+		MeshComponent->SetWorldScale3D(FVector(0.45f));
+	}
 }
 
 void AMCLootItem::Tick(float DeltaSeconds)
@@ -65,7 +75,17 @@ void AMCLootItem::MarkCarried(AActor* NewCarrier)
 	bCarried = true;
 	NextNoisePulseTimeSeconds = GetWorld() ? GetWorld()->GetTimeSeconds() + LootDescriptor.CarriedNoiseInterval : 0.0f;
 	SetReplicateMovement(false);
-	AttachToActor(NewCarrier, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+	if (const AMCCharacter* MallCharacter = Cast<AMCCharacter>(NewCarrier))
+	{
+		AttachToComponent(MallCharacter->GetCarryAttachPoint(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		SetActorRelativeLocation(FVector::ZeroVector);
+	}
+	else
+	{
+		AttachToActor(NewCarrier, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
+
 	ApplyCarryPresentation();
 }
 
@@ -234,5 +254,20 @@ void AMCLootItem::ApplyCarryPresentation()
 	{
 		MeshComponent->SetSimulatePhysics(false);
 		MeshComponent->SetCollisionEnabled(bCollisionEnabled ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
+
+		FVector VisualScale(0.45f);
+		if (LootDescriptor.Size == EMCLootSize::Medium)
+		{
+			VisualScale = FVector(0.7f, 0.45f, 0.45f);
+		}
+		else if (LootDescriptor.Size == EMCLootSize::Large)
+		{
+			VisualScale = FVector(1.0f, 0.18f, 0.65f);
+		}
+		else if (LootDescriptor.Size == EMCLootSize::Oversized)
+		{
+			VisualScale = FVector(1.1f, 0.55f, 0.8f);
+		}
+		MeshComponent->SetRelativeScale3D(VisualScale);
 	}
 }

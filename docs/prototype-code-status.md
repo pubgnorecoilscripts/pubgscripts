@@ -29,6 +29,7 @@ Core runtime systems:
 | Interaction | `MCInteractable`, `MCInteractionComponent` | Lightweight multiplayer interaction interface used by loot and sabotage devices, with server-side view traces. |
 | Input hooks | `MCCharacter` | Enhanced Input binding hooks for movement, look, interact, drop loot, and danger ping. |
 | Announcements and atmosphere | `MCGameState` | Replicated mall announcement and atmosphere cue channels for PA lines, fake alerts, sirens, blackouts, shakes, and collapse cues. |
+| First playable shell | `MCGreyboxArena`, `MCDebugHUD`, `MCGameMode` | Source-only runtime greybox arena, placeholder loot/hazard/extraction/sabotage spawning, legacy input fallback, camera, carry attach point, and debug HUD. |
 
 ## First Fun Layer
 
@@ -47,7 +48,8 @@ The prototype now includes the first systems intended to create greed, betrayal,
 1. Open `MallCollapse.uproject` in Unreal Engine 5.4 or update the engine association to the installed UE5 version.
 2. Generate project files from the Unreal context menu or editor prompt.
 3. Compile the `MallCollapse` module.
-4. Create Blueprint subclasses for:
+4. Press Play in an empty/default map. `MCGameMode` now spawns an ugly runtime greybox arena automatically for first-playable testing.
+5. Optional: create Blueprint subclasses for:
    - `MCCharacter`
    - `MCLootItem`
    - `MCHazardVolume`
@@ -56,7 +58,7 @@ The prototype now includes the first systems intended to create greed, betrayal,
    - `MCMallModuleStateActor`
    - `MCPingActor`
    - `MCMatchDirector`
-5. Build a small atrium test map with:
+6. If replacing the runtime arena, build a small atrium test map with:
    - 4-6 player starts.
    - Several loot items of different weights/values.
    - Two or more extraction zones for director-controlled exit rotation.
@@ -64,7 +66,14 @@ The prototype now includes the first systems intended to create greed, betrayal,
    - Several high-value loot items using the built-in presets.
    - One sabotage device linked to at least one extraction zone, hazard volume, or mall module.
    - One module state actor driving an authored collapse mesh swap in Blueprint.
-6. Create Enhanced Input assets and assign them on an `MCCharacter` Blueprint:
+7. Enhanced Input assets are optional for now. The C++ character has legacy keyboard/mouse bindings:
+   - WASD move
+   - Mouse look
+   - E interact
+   - Q drop loot
+   - Middle mouse ping
+   - Space jump
+8. If using Enhanced Input, create assets and assign them on an `MCCharacter` Blueprint:
    - Move
    - Look
    - Interact
@@ -75,9 +84,9 @@ The prototype now includes the first systems intended to create greed, betrayal,
 
 This is not a playable packaged build yet. The code establishes the first multiplayer gameplay foundation, but the following work is still required:
 
-- Camera setup.
+- Full authored map. The current arena is runtime-generated C++ greybox.
 - Animation Blueprint and carry poses.
-- Actual mall map and art assets.
+- Actual mall art assets.
 - Blueprint visual/audio responses for hazards, extraction, sabotage, panic, and module state changes.
 - Blueprint visual/audio responses for announcement and atmosphere cues.
 - Dedicated server build configuration.
