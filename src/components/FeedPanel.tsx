@@ -27,6 +27,10 @@ export function FeedPanel({ feed }: FeedPanelProps) {
               <span className="text-slate-600">T+{post.tick}</span>
             </div>
             <p className="mt-2 text-sm leading-6 text-slate-200">{post.body}</p>
+            <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">
+              market impact {post.impact >= 0 ? "+" : ""}
+              {Math.round(post.impact)}
+            </div>
           </article>
         ))}
       </div>

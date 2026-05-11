@@ -14,11 +14,15 @@ export type CoinState = {
   price: number;
   liquidity: number;
   marketCap: number;
+  volume: number;
+  priceVelocity: number;
+  momentum: number;
   hype: number;
   trust: number;
   heat: number;
   attention: number;
   volatility: number;
+  narrativeStability: number;
 };
 
 export type InfluencerStatus = "loyal" | "bored" | "rogue" | "cancelled";
@@ -50,6 +54,16 @@ export type ActionDefinition = {
     heat: number;
     trust: number;
     volatility: number;
+    narrativeStability: number;
+  };
+  chain: {
+    label: string;
+    duration: number;
+    hypeVelocity: number;
+    liquidityMultiplier: number;
+    heatAcceleration: number;
+    volatilityAcceleration: number;
+    synergy: Partial<Record<ActionId, number>>;
   };
 };
 
@@ -59,7 +73,9 @@ export type CrisisChoice = {
   id: string;
   label: string;
   description: string;
-  effects: Partial<Pick<CoinState, "hype" | "trust" | "heat" | "attention" | "liquidity" | "volatility">> & {
+  effects: Partial<
+    Pick<CoinState, "hype" | "trust" | "heat" | "attention" | "liquidity" | "volatility" | "narrativeStability" | "momentum">
+  > & {
     cash?: number;
   };
 };
@@ -81,14 +97,33 @@ export type SocialPost = {
   body: string;
   sentiment: Sentiment;
   impact: number;
+  effects: Partial<Pick<CoinState, "hype" | "trust" | "heat" | "attention" | "volatility" | "narrativeStability" | "momentum">>;
+};
+
+export type MomentumChain = {
+  id: string;
+  source: ActionId;
+  label: string;
+  startedAt: number;
+  expiresAt: number;
+  intensity: number;
+  hypeVelocity: number;
+  liquidityMultiplier: number;
+  heatAcceleration: number;
+  volatilityAcceleration: number;
+  synergy: Partial<Record<ActionId, number>>;
 };
 
 export type MarketPoint = {
   tick: number;
   price: number;
   liquidity: number;
+  volume: number;
+  priceVelocity: number;
+  momentum: number;
   hype: number;
   trust: number;
+  narrativeStability: number;
 };
 
 export type RunStats = {
@@ -109,6 +144,7 @@ export type GameState = {
   influencers: Influencer[];
   feed: SocialPost[];
   crises: Crisis[];
+  momentumChains: MomentumChain[];
   market: MarketPoint[];
   cooldowns: Partial<Record<ActionId, number>>;
   stats: RunStats;

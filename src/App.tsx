@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { ActionPanel } from "./components/ActionPanel";
 import { CrisisPanel } from "./components/CrisisPanel";
 import { FeedPanel } from "./components/FeedPanel";
 import { InfluencerPanel } from "./components/InfluencerPanel";
 import { MarketChart } from "./components/MarketChart";
 import { MetricCard } from "./components/MetricCard";
+import { MomentumPanel } from "./components/MomentumPanel";
 import { SetupScreen } from "./components/SetupScreen";
 import { TerminalPanel } from "./components/TerminalPanel";
 import { formatMoney } from "./game/rng";
@@ -16,10 +18,12 @@ export default function App() {
     config,
     state,
     selectedAction,
+    isPaused,
     setConfig,
     randomizeConfig,
     start,
     reset,
+    setPaused,
     selectAction,
     performSelectedAction,
     tick,
@@ -28,12 +32,22 @@ export default function App() {
     pivot,
   } = useRunStore();
 
+  useEffect(() => {
+    if (isPaused || state.phase !== "running") {
+      return;
+    }
+
+    const delay = Math.max(520, 1450 - state.momentumChains.length * 130 - Math.max(0, state.coin?.attention ?? 0) * 3.5);
+    const timer = window.setInterval(tick, delay);
+    return () => window.clearInterval(timer);
+  }, [isPaused, state.phase, state.momentumChains.length, state.coin?.attention, tick]);
+
   if (!state.coin) {
     return <SetupScreen config={config} onConfig={setConfig} onRandomize={randomizeConfig} onStart={start} />;
   }
 
   const { coin } = state;
-  const stressLevel = Math.max(coin.heat, 100 - coin.trust, coin.volatility);
+  const stressLevel = Math.max(coin.heat, 100 - coin.trust, coin.volatility, 100 - coin.narrativeStability, Math.abs(coin.momentum));
 
   return (
     <main className={`min-h-screen bg-[#05070a] p-4 text-slate-100 md:p-6 ${stressLevel > 72 ? "stress-mode" : ""}`}>
@@ -46,6 +60,9 @@ export default function App() {
         </div>
         <div className="flex flex-wrap gap-2">
           <StatusPill phase={state.phase} />
+          <button className="button-secondary" type="button" onClick={() => setPaused(!isPaused)} disabled={state.phase !== "running"}>
+            {isPaused ? "resume chaos" : "strategic pause"}
+          </button>
           <button
             className="button-secondary"
             type="button"
@@ -57,13 +74,20 @@ export default function App() {
         </div>
       </header>
 
-      <section className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+      <section className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
         <MetricCard label="cash" value={formatMoney(state.cash)} detail="operator balance" tone="good" />
         <MetricCard label="price" value={formatMoney(coin.price)} detail="belief per token" />
         <MetricCard label="liquidity" value={formatMoney(coin.liquidity)} detail="available exit meat" />
+        <MetricCard label="volume" value={formatMoney(coin.volume)} detail="panic throughput" tone={coin.volume > coin.liquidity * 0.45 ? "warn" : "neutral"} />
         <MetricCard label="hype" value={percent(coin.hype)} detail="narrative oxygen" tone={coin.hype > 70 ? "warn" : "neutral"} />
         <MetricCard label="trust" value={percent(coin.trust)} detail="collapse fuse" tone={coin.trust < 30 ? "danger" : "good"} />
         <MetricCard label="heat" value={percent(coin.heat)} detail="adult supervision" tone={coin.heat > 70 ? "danger" : "neutral"} />
+        <MetricCard
+          label="stability"
+          value={percent(coin.narrativeStability)}
+          detail="story coherence"
+          tone={coin.narrativeStability < 35 ? "danger" : "neutral"}
+        />
       </section>
 
       {state.phase !== "running" ? (
@@ -95,6 +119,7 @@ export default function App() {
 
         <div className="space-y-5">
           <MarketChart points={state.market} />
+          <MomentumPanel state={state} />
           <CrisisPanel crises={state.crises} onResolve={resolveCrisis} />
           <TerminalPanel lines={state.terminal} />
         </div>

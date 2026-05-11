@@ -7,8 +7,12 @@ This repository now contains a lean Electron + React + TypeScript foundation for
 - deterministic seeded market simulation
 - fake social feed
 - hype/liquidity/trust/heat/volatility loop
+- real-time simulation ticks with strategic pause
+- momentum chains that reward dangerous action sequencing
+- social feed posts that directly perturb market state
+- narrative stability as the hidden/semi-visible collapse fuse
 - influencer liabilities that can go rogue
-- crisis queue with risk/reward responses
+- escalating crisis queue with risk/reward responses
 - pivot and rug-pull decisions
 - SQLite save seam in Electron main process
 - Tailwind-powered fake terminal UI

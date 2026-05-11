@@ -16,10 +16,12 @@ type RunStore = {
   config: CoinConfig;
   state: GameState;
   selectedAction: ActionId;
+  isPaused: boolean;
   setConfig: (config: Partial<CoinConfig>) => void;
   randomizeConfig: () => void;
   start: () => void;
   reset: () => void;
+  setPaused: (isPaused: boolean) => void;
   selectAction: (actionId: ActionId) => void;
   performSelectedAction: () => void;
   tick: () => void;
@@ -35,6 +37,7 @@ export const useRunStore = create<RunStore>((set, get) => ({
   config: initialConfig,
   state: createSetupState(initialConfig.seed),
   selectedAction: firstAction,
+  isPaused: false,
   setConfig: (config) =>
     set((store) => ({
       config: {
@@ -45,16 +48,17 @@ export const useRunStore = create<RunStore>((set, get) => ({
     })),
   randomizeConfig: () => {
     const config = randomCoinConfig(Date.now());
-    set({ config, state: createSetupState(config.seed) });
+    set({ config, state: createSetupState(config.seed), isPaused: false });
   },
   start: () => {
     const { config } = get();
-    set({ state: startRun(config) });
+    set({ state: startRun(config), isPaused: false });
   },
   reset: () => {
     const config = randomCoinConfig(Date.now());
-    set({ config, state: createSetupState(config.seed), selectedAction: firstAction });
+    set({ config, state: createSetupState(config.seed), selectedAction: firstAction, isPaused: false });
   },
+  setPaused: (isPaused) => set({ isPaused }),
   selectAction: (actionId) => set({ selectedAction: actionId }),
   performSelectedAction: () => {
     const { state, selectedAction } = get();

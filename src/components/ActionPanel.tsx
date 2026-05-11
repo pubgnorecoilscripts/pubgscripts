@@ -25,6 +25,7 @@ export function ActionPanel({
 }: ActionPanelProps) {
   const selected = actionDefinitions.find((action) => action.id === selectedAction) ?? actionDefinitions[0];
   const canAct = state.phase === "running" && state.cash >= selected.cost && (state.cooldowns[selected.id] ?? 0) === 0;
+  const activeSynergy = state.momentumChains.reduce((multiplier, chain) => multiplier * (chain.synergy[selectedAction] ?? 1), 1);
 
   return (
     <section className="panel p-4">
@@ -52,18 +53,29 @@ export function ActionPanel({
                 <div className="text-right font-mono text-xs text-cyan-200">{formatMoney(action.cost)}</div>
               </div>
               <p className="mt-2 text-xs leading-5 text-slate-400">{action.description}</p>
+              <div className="mt-2 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">
+                <span>{action.chain.duration} tick window</span>
+                <span>liq x{action.chain.liquidityMultiplier.toFixed(2)}</span>
+                <span>heat +{action.chain.heatAcceleration.toFixed(1)}</span>
+              </div>
               {cooldown > 0 ? <div className="mt-2 text-xs uppercase tracking-[0.2em] text-yellow-300">{cooldown} tick cooldown</div> : null}
             </button>
           );
         })}
       </div>
 
+      {activeSynergy > 1.01 ? (
+        <div className="mt-4 rounded border border-pink-400/30 bg-pink-950/20 p-3 font-mono text-xs uppercase tracking-[0.18em] text-pink-100">
+          combo window: selected action amplified x{activeSynergy.toFixed(2)}
+        </div>
+      ) : null}
+
       <div className="mt-5 grid grid-cols-2 gap-3">
         <button className="button-primary col-span-2" disabled={!canAct} type="button" onClick={onExecute}>
           execute selected
         </button>
         <button className="button-secondary" disabled={state.phase !== "running"} type="button" onClick={onTick}>
-          advance feed
+          step tick
         </button>
         <button className="button-secondary" disabled={state.phase !== "running" || state.cash < 1500} type="button" onClick={onPivot}>
           pivot narrative

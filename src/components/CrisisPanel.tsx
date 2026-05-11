@@ -26,6 +26,9 @@ export function CrisisPanel({ crises, onResolve }: CrisisPanelProps) {
                   severity {Math.round(crisis.severity)}
                 </span>
               </div>
+              <div className="mt-3 font-mono text-xs uppercase tracking-[0.18em] text-red-200/70">
+                mutates at T+{crisis.expiresAt} if ignored
+              </div>
               <div className="mt-4 grid gap-2">
                 {crisis.choices.map((choice) => (
                   <button className="button-secondary text-left" key={choice.id} type="button" onClick={() => onResolve(crisis.id, choice.id)}>
