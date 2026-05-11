@@ -2,82 +2,131 @@ import { create } from "zustand";
 import { actionDefinitions } from "../game/content";
 import {
   advanceTick,
-  createSetupState,
+  crisisFreeze,
+  createWorld,
+  launchNarrative,
   performAction,
   pivotNarrative,
-  randomCoinConfig,
+  randomLaunchConfig,
   resolveCrisis,
   rugPull,
-  startRun,
+  simulateOffline,
 } from "../game/simulation";
-import type { ActionId, CoinConfig, GameState } from "../game/types";
+import type { ActionId, MarketSpeed, WorldState } from "../game/types";
 
-type RunStore = {
-  config: CoinConfig;
-  state: GameState;
+type WorldStore = {
+  world: WorldState;
   selectedAction: ActionId;
-  isPaused: boolean;
-  setConfig: (config: Partial<CoinConfig>) => void;
-  randomizeConfig: () => void;
-  start: () => void;
-  reset: () => void;
-  setPaused: (isPaused: boolean) => void;
+  launchTicker: string;
+  launchNarrative: string;
+  setLaunchConfig: (ticker: string, narrative: string) => void;
+  randomizeLaunch: () => void;
+  launch: () => void;
+  setSpeed: (speed: MarketSpeed) => void;
   selectAction: (actionId: ActionId) => void;
   performSelectedAction: () => void;
   tick: () => void;
   resolveCrisis: (crisisId: string, choiceId: string) => void;
+  crisisFreeze: () => void;
   rugPull: () => void;
   pivot: () => void;
+  catchUp: () => void;
 };
 
-const initialConfig = randomCoinConfig(13_337);
-const firstAction = actionDefinitions[0].id;
+const STORAGE_KEY = "pump-exe-world";
 
-export const useRunStore = create<RunStore>((set, get) => ({
-  config: initialConfig,
-  state: createSetupState(initialConfig.seed),
+const loadWorld = (): WorldState => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw) as WorldState;
+      if (saved.tick !== undefined && saved.rngState !== undefined) return saved;
+    }
+  } catch { /* start fresh */ }
+  return createWorld(Date.now());
+};
+
+const saveWorld = (world: WorldState) => {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(world)); } catch { /* ok */ }
+};
+
+const firstAction = actionDefinitions[0].id;
+const initialLaunch = randomLaunchConfig(Date.now());
+
+export const useRunStore = create<WorldStore>((set, get) => ({
+  world: loadWorld(),
   selectedAction: firstAction,
-  isPaused: false,
-  setConfig: (config) =>
-    set((store) => ({
-      config: {
-        ...store.config,
-        ...config,
-        ticker: config.ticker?.toUpperCase().slice(0, 6) ?? store.config.ticker,
-      },
-    })),
-  randomizeConfig: () => {
-    const config = randomCoinConfig(Date.now());
-    set({ config, state: createSetupState(config.seed), isPaused: false });
+  launchTicker: initialLaunch.ticker,
+  launchNarrative: initialLaunch.narrative,
+  setLaunchConfig: (ticker, narrative) => set({ launchTicker: ticker, launchNarrative: narrative }),
+  randomizeLaunch: () => {
+    const cfg = randomLaunchConfig(Date.now());
+    set({ launchTicker: cfg.ticker, launchNarrative: cfg.narrative });
   },
-  start: () => {
-    const { config } = get();
-    set({ state: startRun(config), isPaused: false });
+  launch: () => {
+    const { world, launchTicker, launchNarrative } = get();
+    const next = launchNarrative ? launchNarrative : "AI-powered engagement derivative";
+    const updated = launchNarrative ? launchNarrative : next;
+    const w = launchNarrative !== undefined ? launchNarrative : updated;
+    const result = launchNarrative !== undefined
+      ? performLaunch(world, launchTicker, launchNarrative)
+      : performLaunch(world, launchTicker, "AI-powered engagement derivative");
+    set({ world: result });
+    saveWorld(result);
+    const cfg = randomLaunchConfig(Date.now());
+    set({ launchTicker: cfg.ticker, launchNarrative: cfg.narrative });
   },
-  reset: () => {
-    const config = randomCoinConfig(Date.now());
-    set({ config, state: createSetupState(config.seed), selectedAction: firstAction, isPaused: false });
+  setSpeed: (speed) => {
+    const { world } = get();
+    const next = { ...world, speed };
+    set({ world: next });
+    saveWorld(next);
   },
-  setPaused: (isPaused) => set({ isPaused }),
   selectAction: (actionId) => set({ selectedAction: actionId }),
   performSelectedAction: () => {
-    const { state, selectedAction } = get();
-    set({ state: performAction(state, selectedAction) });
+    const { world, selectedAction } = get();
+    const next = performAction(world, selectedAction);
+    set({ world: next });
+    saveWorld(next);
   },
   tick: () => {
-    const { state } = get();
-    set({ state: advanceTick(state).state });
+    const { world } = get();
+    const next = advanceTick(world);
+    set({ world: next });
+    if (next.tick % 5 === 0) saveWorld(next);
   },
   resolveCrisis: (crisisId, choiceId) => {
-    const { state } = get();
-    set({ state: resolveCrisis(state, crisisId, choiceId) });
+    const { world } = get();
+    const next = resolveCrisis(world, crisisId, choiceId);
+    set({ world: next });
+    saveWorld(next);
+  },
+  crisisFreeze: () => {
+    const { world } = get();
+    const next = crisisFreeze(world);
+    set({ world: next });
+    saveWorld(next);
   },
   rugPull: () => {
-    const { state } = get();
-    set({ state: rugPull(state) });
+    const { world } = get();
+    const next = rugPull(world);
+    set({ world: next });
+    saveWorld(next);
   },
   pivot: () => {
-    const { state } = get();
-    set({ state: pivotNarrative(state) });
+    const { world } = get();
+    const next = pivotNarrative(world);
+    set({ world: next });
+    saveWorld(next);
+  },
+  catchUp: () => {
+    const { world } = get();
+    const next = simulateOffline(world, 30);
+    set({ world: next });
+    saveWorld(next);
   },
 }));
+
+function performLaunch(world: WorldState, ticker: string, narrative: string): WorldState {
+  return launchNarrative(world, ticker, narrative);
+}

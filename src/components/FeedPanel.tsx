@@ -2,6 +2,7 @@ import type { SocialPost } from "../game/types";
 
 type FeedPanelProps = {
   feed: SocialPost[];
+  frenzyActive?: boolean;
 };
 
 const sentimentStyle = {
@@ -12,14 +13,16 @@ const sentimentStyle = {
   bot: "border-cyan-300/20 text-cyan-200",
 };
 
-export function FeedPanel({ feed }: FeedPanelProps) {
+export function FeedPanel({ feed, frenzyActive }: FeedPanelProps) {
   return (
-    <section className="panel p-4">
+    <section className={`panel p-4 transition-all ${frenzyActive ? "border-pink-400/30" : ""}`}>
       <div className="flex items-center justify-between">
         <h2 className="section-title">fake social feed</h2>
-        <span className="animate-pulse font-mono text-xs text-pink-300">LIVE</span>
+        <span className={`font-mono text-xs ${frenzyActive ? "text-pink-300 animate-pulse" : "text-pink-300 animate-pulse"}`}>
+          {frenzyActive ? "OVERLOADED" : "LIVE"}
+        </span>
       </div>
-      <div className="mt-4 max-h-[520px] space-y-3 overflow-auto pr-1">
+      <div className={`mt-4 max-h-[520px] space-y-3 overflow-auto pr-1 ${frenzyActive ? "feed-frenzy" : ""}`}>
         {feed.map((post) => (
           <article className={`rounded border bg-black/20 p-3 ${sentimentStyle[post.sentiment]}`} key={post.id}>
             <div className="flex items-center justify-between gap-2 font-mono text-xs">
@@ -27,9 +30,12 @@ export function FeedPanel({ feed }: FeedPanelProps) {
               <span className="text-slate-600">T+{post.tick}</span>
             </div>
             <p className="mt-2 text-sm leading-6 text-slate-200">{post.body}</p>
-            <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">
-              market impact {post.impact >= 0 ? "+" : ""}
-              {Math.round(post.impact)}
+            <div className="mt-2 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">
+              <span>
+                impact {post.impact >= 0 ? "+" : ""}
+                {Math.round(post.impact)}
+              </span>
+              {post.factionSource && <span className="text-purple-300">{post.factionSource}</span>}
             </div>
           </article>
         ))}

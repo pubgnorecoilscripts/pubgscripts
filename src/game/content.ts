@@ -1,4 +1,4 @@
-import type { ActionDefinition, Crisis, CrisisChoice, CrisisId, Influencer, Sentiment } from "./types";
+import type { ActionDefinition, Crisis, CrisisChoice, CrisisId, Influencer, InfluencerTrait, Sentiment } from "./types";
 
 export const actionDefinitions: ActionDefinition[] = [
   {
@@ -91,7 +91,162 @@ export const actionDefinitions: ActionDefinition[] = [
       synergy: { leakRoadmap: 1.22, manufactureOutrage: 1.16 },
     },
   },
+  {
+    id: "fakePartnership",
+    label: "Fake Partnership",
+    command: "fabricate institutional alliance",
+    description: "Massive credibility injection. The contradiction lands later, and it lands hard.",
+    cost: 2_200,
+    cooldown: 6,
+    dangerous: true,
+    delayedRisk: {
+      chance: 0.65,
+      minDelay: 8,
+      maxDelay: 18,
+      description: "The 'partner' issues a public denial. Trust implodes.",
+    },
+    effects: { hype: 28, attention: 22, liquidity: 2_400, heat: 4, trust: 18, volatility: 6, narrativeStability: 12 },
+    chain: {
+      label: "Institutional Delusion",
+      duration: 14,
+      hypeVelocity: 2.2,
+      liquidityMultiplier: 1.35,
+      heatAcceleration: 0.4,
+      volatilityAcceleration: 0.6,
+      synergy: { leakRoadmap: 1.4, sponsorInfluencer: 1.3, liquidityMirage: 1.25 },
+    },
+  },
+  {
+    id: "deployAiProphet",
+    label: "Deploy AI Prophet",
+    command: "activate autonomous hype engine",
+    description: "Self-replicating engagement. Generates content 24/7. Cannot be fully controlled.",
+    cost: 1_800,
+    cooldown: 7,
+    dangerous: true,
+    delayedRisk: {
+      chance: 0.5,
+      minDelay: 6,
+      maxDelay: 14,
+      crisisType: "rogueInfluencer",
+      description: "The AI prophet developed theology and now has followers who ignore you.",
+    },
+    effects: { hype: 22, attention: 28, liquidity: 800, heat: 8, trust: -3, volatility: 12, narrativeStability: -14 },
+    chain: {
+      label: "Synthetic Prophecy",
+      duration: 20,
+      hypeVelocity: 2.8,
+      liquidityMultiplier: 1.15,
+      heatAcceleration: 1.1,
+      volatilityAcceleration: 1.6,
+      synergy: { botBurst: 1.35, manufactureOutrage: 1.28, fakePartnership: 1.2 },
+    },
+  },
+  {
+    id: "syntheticOutrage",
+    label: "Synthetic Outrage",
+    command: "engineer viral cancellation attempt",
+    description: "Weaponized controversy. Enormous attention spike. Permanent narrative scarring.",
+    cost: 1_400,
+    cooldown: 5,
+    dangerous: true,
+    delayedRisk: {
+      chance: 0.4,
+      minDelay: 4,
+      maxDelay: 10,
+      crisisType: "outrageBackfire",
+      description: "The outrage became real and now has institutional backing.",
+    },
+    effects: { hype: 24, attention: 32, liquidity: 600, heat: 18, trust: -12, volatility: 16, narrativeStability: -20 },
+    chain: {
+      label: "Cancellation Economy",
+      duration: 13,
+      hypeVelocity: 3.0,
+      liquidityMultiplier: 1.12,
+      heatAcceleration: 2.0,
+      volatilityAcceleration: 2.2,
+      synergy: { botBurst: 1.32, deployAiProphet: 1.22, manufactureOutrage: 1.4 },
+    },
+  },
+  {
+    id: "leakInternalDocs",
+    label: "Leak Internal Docs",
+    command: "stage controlled transparency event",
+    description: "Curated honesty. Trust surges. The real docs are much worse.",
+    cost: 1_100,
+    cooldown: 5,
+    dangerous: true,
+    delayedRisk: {
+      chance: 0.45,
+      minDelay: 10,
+      maxDelay: 22,
+      description: "Someone found the REAL internal docs. The curated ones make it worse.",
+    },
+    effects: { hype: 14, attention: 16, liquidity: 1_200, heat: -4, trust: 22, volatility: -4, narrativeStability: 10 },
+    chain: {
+      label: "Transparency Theater",
+      duration: 16,
+      hypeVelocity: 1.2,
+      liquidityMultiplier: 1.28,
+      heatAcceleration: -0.3,
+      volatilityAcceleration: 0.4,
+      synergy: { leakRoadmap: 1.35, fakePartnership: 1.3, sponsorInfluencer: 1.2 },
+    },
+  },
+  {
+    id: "simulatedHack",
+    label: "Simulated Hack",
+    command: "orchestrate security theater incident",
+    description: "Fake vulnerability → heroic save → trust surge. Unless real hackers notice.",
+    cost: 2_000,
+    cooldown: 8,
+    dangerous: true,
+    delayedRisk: {
+      chance: 0.55,
+      minDelay: 5,
+      maxDelay: 12,
+      crisisType: "fakeHack",
+      description: "Actual hackers noticed your 'vulnerability' was real. They're inside now.",
+    },
+    effects: { hype: 16, attention: 20, liquidity: 1_800, heat: 6, trust: 14, volatility: 18, narrativeStability: -6 },
+    chain: {
+      label: "Security Theater",
+      duration: 14,
+      hypeVelocity: 1.6,
+      liquidityMultiplier: 1.32,
+      heatAcceleration: 0.8,
+      volatilityAcceleration: 1.4,
+      synergy: { liquidityMirage: 1.3, leakInternalDocs: 1.25, fakePartnership: 1.18 },
+    },
+  },
 ];
+
+export const influencerTraits: InfluencerTrait[] = [
+  "opportunist",
+  "cultLeader",
+  "paranoid",
+  "accelerationist",
+  "chaosAddict",
+  "regulatorBait",
+  "conspiracyTheorist",
+];
+
+export const traitBehaviors: Record<InfluencerTrait, {
+  goRogueThreshold: number;
+  autonomyGrowth: number;
+  audienceGrowthRate: number;
+  disobedienceChance: number;
+  specialAction?: string;
+}> = {
+  opportunist: { goRogueThreshold: 20, autonomyGrowth: 0.8, audienceGrowthRate: 1.2, disobedienceChance: 0.12 },
+  cultLeader: { goRogueThreshold: 30, autonomyGrowth: 1.4, audienceGrowthRate: 1.8, disobedienceChance: 0.08, specialAction: "form cult" },
+  paranoid: { goRogueThreshold: 35, autonomyGrowth: 0.6, audienceGrowthRate: 0.7, disobedienceChance: 0.18 },
+  accelerationist: { goRogueThreshold: 25, autonomyGrowth: 1.2, audienceGrowthRate: 1.4, disobedienceChance: 0.15, specialAction: "accelerate chaos" },
+  chaosAddict: { goRogueThreshold: 18, autonomyGrowth: 1.6, audienceGrowthRate: 1.1, disobedienceChance: 0.22, specialAction: "random chaos" },
+  regulatorBait: { goRogueThreshold: 40, autonomyGrowth: 0.5, audienceGrowthRate: 0.9, disobedienceChance: 0.06 },
+  conspiracyTheorist: { goRogueThreshold: 28, autonomyGrowth: 1.3, audienceGrowthRate: 1.5, disobedienceChance: 0.14, specialAction: "spread theory" },
+  narcissist: { goRogueThreshold: 22, autonomyGrowth: 1.5, audienceGrowthRate: 1.6, disobedienceChance: 0.2, specialAction: "self-promote" },
+};
 
 export const influencerTemplates: Omit<Influencer, "id">[] = [
   {
@@ -102,6 +257,11 @@ export const influencerTemplates: Omit<Influencer, "id">[] = [
     alignment: 68,
     volatility: 76,
     status: "loyal",
+    trait: "opportunist",
+    audience: 12_000,
+    opinions: 0,
+    autonomy: 15,
+    lastActedAt: 0,
   },
   {
     handle: "@MommyMiladyAI",
@@ -111,6 +271,11 @@ export const influencerTemplates: Omit<Influencer, "id">[] = [
     alignment: 52,
     volatility: 88,
     status: "loyal",
+    trait: "cultLeader",
+    audience: 34_000,
+    opinions: 0,
+    autonomy: 22,
+    lastActedAt: 0,
   },
   {
     handle: "@BasedCompliance",
@@ -120,6 +285,11 @@ export const influencerTemplates: Omit<Influencer, "id">[] = [
     alignment: 61,
     volatility: 42,
     status: "loyal",
+    trait: "regulatorBait",
+    audience: 8_000,
+    opinions: 0,
+    autonomy: 8,
+    lastActedAt: 0,
   },
   {
     handle: "@ChartCrimes",
@@ -129,6 +299,11 @@ export const influencerTemplates: Omit<Influencer, "id">[] = [
     alignment: 73,
     volatility: 67,
     status: "loyal",
+    trait: "accelerationist",
+    audience: 22_000,
+    opinions: 0,
+    autonomy: 18,
+    lastActedAt: 0,
   },
   {
     handle: "@SlopOracle",
@@ -138,6 +313,39 @@ export const influencerTemplates: Omit<Influencer, "id">[] = [
     alignment: 80,
     volatility: 93,
     status: "loyal",
+    trait: "chaosAddict",
+    audience: 45_000,
+    opinions: 0,
+    autonomy: 28,
+    lastActedAt: 0,
+  },
+  {
+    handle: "@PatternVoid",
+    archetype: "schizo-poster with followers",
+    reach: 55,
+    credibility: 12,
+    alignment: 44,
+    volatility: 95,
+    status: "loyal",
+    trait: "conspiracyTheorist",
+    audience: 28_000,
+    opinions: 0,
+    autonomy: 32,
+    lastActedAt: 0,
+  },
+  {
+    handle: "@AlphaParasite",
+    archetype: "narrative front-runner",
+    reach: 68,
+    credibility: 35,
+    alignment: 58,
+    volatility: 72,
+    status: "loyal",
+    trait: "opportunist",
+    audience: 18_000,
+    opinions: 0,
+    autonomy: 12,
+    lastActedAt: 0,
   },
 ];
 
@@ -149,9 +357,12 @@ export const narrativeSeeds = [
   "decentralized apology marketplace",
   "GPU-backed astrology engine",
   "carbon-negative rage bait index",
+  "quantum-entangled meme derivative",
+  "consciousness-as-a-service token",
+  "decentralized personality market",
 ];
 
-export const tickerSeeds = ["GRIFT", "SLOP", "YELL", "COPE", "FOMO", "RUG", "VIBE", "HACK"];
+export const tickerSeeds = ["GRIFT", "SLOP", "YELL", "COPE", "FOMO", "RUG", "VIBE", "HACK", "DOOM", "CULT"];
 
 export const postFragments: Record<Sentiment, string[]> = {
   bullish: [
@@ -159,30 +370,40 @@ export const postFragments: Record<Sentiment, string[]> = {
     "Early wallets are accumulating like raccoons in a data center.",
     "This narrative is so stupid it wrapped around to genius.",
     "If you missed the last scam, congratulations, here's another chance.",
+    "The thesis is: number goes up because other people think number goes up.",
+    "Buying with my eyes closed. Opening them would introduce doubt.",
   ],
   bearish: [
     "Founder wallet moved and everyone is pretending that's normal.",
     "The whitepaper is just a screenshot of a Discord argument.",
     "Liquidity looks thinner than a launch-day apology.",
     "I have seen rug pulls with better table manners.",
+    "The chart is forming a pattern I call 'slow-motion crime scene'.",
+    "Everyone who bought above this price is now a hostage.",
   ],
   unhinged: [
     "MY GROUP CHAT IS FORMING A GOVERNANCE MILITIA.",
     "THE MASCOT SPOKE TO ME THROUGH A CAPTCHA.",
     "SELLING MY CHAIR. BUYING MORE.",
     "THIS IS NOT FINANCIAL ADVICE, THIS IS A CRY FOR HELP.",
+    "THE CANDLE JUST FORMED THE SHAPE OF MY DEAD PET.",
+    "I HAVE ACHIEVED FINANCIAL PSYCHOSIS. PORTFOLIO IS A STATE OF MIND.",
   ],
   regulatory: [
     "Local agency requests clarification regarding 'weaponized vibes'.",
     "Compliance analysts unable to distinguish satire from securities fraud.",
     "A senator's nephew bought the top and now hearings are possible.",
     "Banking partner flags transaction memo: 'for goblin liquidity'.",
+    "The enforcement letter begins with 'We noticed your memes' which is never good.",
+    "Jurisdictional audit triggered. Your 'community' is legally a crowd.",
   ],
   bot: [
     "Great project ser. Utility soon. Community strong. Very organic.",
     "I am human investor and I enjoy this roadmap sincerely.",
     "Undervalued gem detected by proprietary emotion algorithm.",
     "The devs are cooking. I can smell fiduciary excellence.",
+    "Bullish sentiment confirmed by my artificial conviction engine.",
+    "Analysis complete: this token has a non-zero chance of existing tomorrow.",
   ],
 };
 
@@ -205,15 +426,28 @@ const crisisChoices = {
     description: "Turn failure into canon. Dangerous. Very streamable.",
     effects: { hype: 12, trust: -5, heat: 4, attention: 14, volatility: 10, narrativeStability: -10, momentum: 8 },
   },
+  bribe: {
+    id: "bribe",
+    label: "Throw Money At It",
+    description: "Expensive but fast. The problem might return with friends.",
+    effects: { trust: 2, heat: -4, attention: -3, cash: -1800, volatility: -5, narrativeStability: 3, momentum: -2 },
+  },
+  accelerate: {
+    id: "accelerate",
+    label: "Lean Into Chaos",
+    description: "Make the crisis part of the brand. Extremely dangerous. Extremely memorable.",
+    effects: { hype: 18, trust: -14, heat: 10, attention: 22, volatility: 16, narrativeStability: -18, momentum: 12 },
+  },
 } satisfies Record<string, CrisisChoice>;
 
-export const makeCrisis = (type: CrisisId, id: string, tick: number, severity: number): Crisis => {
+export const makeCrisis = (type: CrisisId, id: string, tick: number, severity: number): Crisis & { narrativeId: string } => {
   const base = {
     id,
     type,
     severity,
-    expiresAt: tick + 4,
-    choices: [crisisChoices.deny, crisisChoices.sacrifice, crisisChoices.embrace],
+    expiresAt: tick + 6,
+    narrativeId: "",
+    choices: [crisisChoices.deny, crisisChoices.sacrifice, crisisChoices.embrace, crisisChoices.bribe, crisisChoices.accelerate],
   };
 
   switch (type) {
@@ -249,3 +483,25 @@ export const makeCrisis = (type: CrisisId, id: string, tick: number, severity: n
       };
   }
 };
+
+export const makeMutatedCrisis = (
+  mutationTitle: string,
+  mutationBody: string,
+  id: string,
+  tick: number,
+  severity: number,
+  sourceType: CrisisId,
+  mutationId: string,
+  generation: number,
+): Crisis => ({
+  id,
+  type: sourceType,
+  title: mutationTitle,
+  body: mutationBody,
+  severity,
+  expiresAt: tick + 5 + Math.floor(generation * 0.5),
+  choices: [crisisChoices.deny, crisisChoices.sacrifice, crisisChoices.embrace, crisisChoices.bribe, crisisChoices.accelerate],
+  mutationSource: mutationId as Crisis["mutationSource"],
+  mutationGeneration: generation,
+  narrativeId: "",
+});
