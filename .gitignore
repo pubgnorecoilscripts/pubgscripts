@@ -4,6 +4,7 @@ dist-electron/
 *.local
 .DS_Store
 npm-debug.log*
+*.tsbuildinfo
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
