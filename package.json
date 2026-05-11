@@ -1,0 +1,46 @@
+{
+  "name": "pump-exe",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pump.exe - a darkly comedic internet capitalism roguelite prototype.",
+  "main": "dist-electron/electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k \"vite --host 0.0.0.0\" \"wait-on tcp:5173 && ELECTRON_RENDERER_URL=http://localhost:5173 electron .\"",
+    "dev:web": "vite --host 0.0.0.0",
+    "build": "tsc -p tsconfig.node.json && tsc -b tsconfig.json && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "typecheck": "tsc -p tsconfig.node.json && tsc -b tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pubgnorecoilscripts/pubgscripts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pubgnorecoilscripts/pubgscripts/issues"
+  },
+  "homepage": "https://github.com/pubgnorecoilscripts/pubgscripts#readme",
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "better-sqlite3": "^12.9.0",
+    "electron": "^42.0.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.12",
+    "zustand": "^5.0.13"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.6.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "concurrently": "^9.2.1",
+    "wait-on": "^9.0.6"
+  }
+}
